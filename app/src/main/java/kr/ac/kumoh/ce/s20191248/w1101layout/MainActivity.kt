@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MovableContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,10 +30,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import kr.ac.kumoh.ce.s20191248.w1101layout.ui.theme.W1101LayoutTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val vm = ViewModelProvider(this)[CounterVIewModel::class.java]
         super.onCreate(savedInstanceState)
         setContent {
             Myapp{
@@ -42,8 +45,8 @@ class MainActivity : ComponentActivity() {
                         .padding(8.dp),
                     verticalArrangement = Arrangement.Center) {
                     Clicker()
-                    Counter()
-                    Counter()
+                    Counter(vm)
+                    //Counter()
                 }
             }
             //MyLinearLayout()
@@ -109,11 +112,12 @@ fun Clicker() {
 }
 
 @Composable
-fun Counter() {
+fun Counter(vIewModel: CounterVIewModel) {
     //var count = 0
-    val (count, setCount) = rememberSaveable {
+    /*val (count, setCount) = rememberSaveable {
         mutableStateOf((0))
-    }
+    }*/
+    val count by vIewModel.count.observeAsState(0)
 
     Column(verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
@@ -122,13 +126,17 @@ fun Counter() {
             Button(modifier = Modifier.weight(1f),
                 onClick = {
                     //count++
-                    setCount(count + 1)
+                    //setCount(count + 1)
+                    vIewModel.onAdd()
                 }) {
                 Text("증가")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(modifier = Modifier.weight(1f), 
-                onClick = { if(count > 0) setCount(count - 1) }) {
+                onClick = {
+                    //if(count > 0) setCount(count - 1)
+                    vIewModel.onSub()
+                }) {
                 Text(text = "감소")
             }
         }
